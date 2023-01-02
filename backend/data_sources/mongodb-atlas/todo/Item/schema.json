@@ -1,0 +1,25 @@
+{
+  "bsonType": "object",
+  "properties": {
+    "_id": {
+      "bsonType": "objectId"
+    },
+    "activity": {
+      "bsonType": "bool"
+    },
+    "activity_type": {
+      "bsonType": "string"
+    },
+    "date": {
+      "bsonType": "date"
+    },
+    "time": {
+      "bsonType": "date"
+    },
+    "owner_id": {
+      "bsonType": "string"
+    }
+  },
+  "required": ["_id", "owner_id", "activity", "date", "time"],
+  "title": "Item"
+}
