@@ -7,7 +7,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 
 Icon.loadFont(); // load FontFamily font
 
-export function CreateToDoPrompt(props) {
+export function EditToDoPrompt(props) {
   const {onSubmit} = props;
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState(new Date());
@@ -24,7 +24,6 @@ export function CreateToDoPrompt(props) {
     {label: 'Treat', value: 'Treat'},
     {label: 'Walk', value: 'Walk'},
   ]);
-
   const currentDate = `${date.toLocaleDateString()}`;
   const currentTime = `${time
     .toLocaleTimeString()
@@ -37,7 +36,7 @@ export function CreateToDoPrompt(props) {
         Add a new activity
       </Text>
       <DropDownPicker
-        placeholder="Select an activity"
+        placeholder={props.activity_type}
         open={openSelect}
         value={value}
         items={items}

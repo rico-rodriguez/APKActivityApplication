@@ -5,10 +5,11 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {StyleSheet, Text, View} from 'react-native';
 import {Button, Overlay, ListItem} from 'react-native-elements';
 
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import {CreateToDoPrompt} from './CreateToDoPrompt';
 import RealmContext from './RealmContext';
+import {EditToDoPrompt} from './EditToDoPrompt';
 const {useRealm, useQuery} = RealmContext;
 
 Icon.loadFont(); // load FontAwesome font
@@ -18,6 +19,7 @@ export function ItemListView() {
   const items = useQuery('Item');
   const user = useUser();
   const [showNewItemOverlay, setShowNewItemOverlay] = useState(false);
+  const [showEditItemOverlay, setShowEditItemOverlay] = useState(false);
 
   useEffect(() => {
     // initialize the subscriptions
@@ -49,6 +51,17 @@ export function ItemListView() {
       });
     }
   };
+  const updateItem = (_id, updatedActivityType, updatedDate, updatedTime) => {
+    // if the realm exists, get the Item with a particular _id and update its activity_type, date, and time fields
+    if (realm) {
+      const item = realm.objectForPrimaryKey('Item', _id._id); // search for a realm object with a primary key that is an objectId
+      realm.write(() => {
+        item.activity_type = _id.updatedActivityType;
+        item.date = _id.updatedDate;
+        item.time = _id.updatedTime;
+      });
+    }
+  };
 
   // deleteItem() deletes an Item with a particular _id
   const deleteItem = _id => {
@@ -60,17 +73,25 @@ export function ItemListView() {
       });
     }
   };
-  // toggleItemIsComplete() updates an Item with a particular _id to be 'completed'
-  const toggleItemIsComplete = _id => {
-    // if the realm exists, get the Item with a particular _id and update it's 'isCompleted' field
-    if (realm) {
-      const item = realm.objectForPrimaryKey('Item', _id); // search for a realm object with a primary key that is an objectId
-      realm.write(() => {
-        item.isComplete = !item.isComplete;
-      });
+  function getIconNameForActivityType(activityType) {
+    switch (activityType) {
+      case 'Medicine':
+        return 'heart-plus';
+      case 'Meal':
+        return 'food-drumstick';
+      case 'Treat':
+        return 'candy';
+      // Add more cases as needed
+      case 'Bath':
+        return 'shower';
+      case 'Walk':
+        return 'walk';
+      case 'Play':
+        return 'dog-side';
+      default:
+        return 'Circle';
     }
-  };
-
+  }
   return (
     <SafeAreaProvider>
       <View style={styles.viewWrapper}>
@@ -95,11 +116,39 @@ export function ItemListView() {
         </Overlay>
         {items.map(item => (
           <ListItem key={`${item._id}`} bottomDivider topDivider>
+            <Icon
+              name={getIconNameForActivityType(item.activity_type)}
+              size={24}
+              color="#000"
+            />
             <ListItem.Title style={styles.itemTitle}>
               {item.activity_type} -
               {item.date.toDateString().split(' ').slice(1).join(' ')} -
               {item.time.toLocaleTimeString().split(':').slice(0, 2).join(':')}
             </ListItem.Title>
+
+            <Overlay
+              isVisible={showEditItemOverlay}
+              onBackdropPress={() => setShowEditItemOverlay(false)}>
+              <EditToDoPrompt
+                activity_type={item.activity_type}
+                item={item}
+                onSubmit={({activity_type, date, time}) => {
+                  setShowEditItemOverlay(false);
+                  updateItem({
+                    _id: item._id,
+                    updatedActivityType: activity_type,
+                    updatedDate: date,
+                    updatedTime: time,
+                  });
+                }}
+              />
+            </Overlay>
+            <Button
+              type="clear"
+              icon={{name: 'edit'}}
+              onPress={() => setShowEditItemOverlay(true)}
+            />
             <Button
               type="clear"
               onPress={() => deleteItem(item._id)}
