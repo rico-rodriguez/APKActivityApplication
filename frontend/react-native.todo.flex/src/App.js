@@ -2,6 +2,9 @@ import React from 'react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {StyleSheet, Text, View, ActivityIndicator} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
 import {createStackNavigator} from '@react-navigation/stack';
 import {AppProvider, UserProvider, useUser} from '@realm/react';
 
@@ -13,6 +16,7 @@ import RealmContext from './RealmContext';
 const {RealmProvider} = RealmContext;
 
 const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
 
 const AppWrapper = () => {
   return (
@@ -23,7 +27,56 @@ const AppWrapper = () => {
     </AppProvider>
   );
 };
-
+function MyTabs() {
+  return (
+    <Tab.Navigator
+      initialRouteName="Feed"
+      screenOptions={{
+        tabBarActiveTintColor: '#000',
+      }}>
+      <Tab.Screen
+        name="Feed"
+        component={ItemListView}
+        options={{
+          tabBarLabel: 'Home',
+          tabBarIcon: ({color, size}) => (
+            <Icon name="home" color={color} size={size} />
+          ),
+          headerRight: () => {
+            return <LogoutButton />;
+          },
+        }}
+      />
+      <Tab.Screen
+        name="Notifications"
+        component={ItemListView}
+        options={{
+          tabBarLabel: 'Updates',
+          tabBarIcon: ({color, size}) => (
+            <Icon name="bell" color={color} size={size} />
+          ),
+          headerRight: () => {
+            return <LogoutButton />;
+          },
+          tabBarBadge: 1,
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ItemListView}
+        options={{
+          tabBarLabel: 'Profile',
+          tabBarIcon: ({color, size}) => (
+            <Icon name="account" color={color} size={size} />
+          ),
+          headerRight: () => {
+            return <LogoutButton />;
+          },
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
 const App = () => {
   return (
     <>
@@ -45,17 +98,7 @@ const App = () => {
         )}>
         <SafeAreaProvider>
           <NavigationContainer>
-            <Stack.Navigator>
-              <Stack.Screen
-                name="Your Activities"
-                component={ItemListView}
-                options={{
-                  headerRight: () => {
-                    return <LogoutButton />;
-                  },
-                }}
-              />
-            </Stack.Navigator>
+            <MyTabs />
           </NavigationContainer>
         </SafeAreaProvider>
       </RealmProvider>
